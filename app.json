@@ -1,6 +1,7 @@
 {
   "expo": {
-    "name": "BloodDonationApp",
+    
+    "name": "bloodDonationApp",
     "slug": "BloodDonationApp",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -11,6 +12,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    
+    "plugins": ["@react-native-firebase/app", "@react-native-firebase/auth"],
+
     "assetBundlePatterns": [
       "**/*"
     ],
