@@ -1,49 +1,127 @@
-import {View, Text, TextInput, Button} from 'react-native';
-import React, {useState} from 'react';
-import auth from '@react-native-firebase/auth';
+import {View, Text, TextInput,TouchableOpacity,StyleSheet,Alert} from 'react-native';
+import React, {useRef,useState} from 'react';
+import {FirebaseRecaptchaVerifierModal} from 'expo-firebase-recaptcha';
+import { firebaseConfig } from './fireBaseConfig';
+import firebase from 'firebase/compat/app';
 
-export default function MobileVerifyScreen() {
-  const [mobileNo, setMobileNo] = useState('');
-  const [otpInput, setOtpInput] = useState('');
-  const [confirmData, setConfirmData] = useState('');
+const Otp = () =>{
+   const [phoneNumber,setPhoneNumber] = useState('');
+   const [code,setcode] = useState('');
+   const [verificationId,setVerificationID] = useState(null);
+   const recaptchaVerifier = useRef(null);
 
-  const sendOtp = async () => {
-    try {
-      const mobile = '+91' + mobileNo;
-      const response = await auth().signInWithPhoneNumber(mobile);
-      setConfirmData(response);
-      console.log(response);
-      alert('Otp Is Sent Please Verify It...');
-    } catch (err) {
-      console.log(err);
+   const sendVerification = () => {
+     const phoneProvider = new firebase.auth.PhoneAuthProvider();
+     phoneProvider
+          .verifyPhoneNumber(phoneNumber,recaptchaVerifier.current)
+          .then(setVerificationID);
+          setPhoneNumber('');
+
+   };
+
+   const confirCode = () => {
+      const  credential  = firebase.auth.PhoneAuthProvider.credential(
+          verificationId,
+          code
+      );
+       firebase.auth().signInWithCredential(credential)
+       .then(() => {
+          setcode('');
+       })
+       .catch((error) =>{
+          // show an alert in case of error
+          alert(error)
+       })
+       Alert.alert(
+        'Login succesful.Welcome to App',
+       ); 
+
+       }
+       
+       return(
+        <View style={styles.container}>
+          <FirebaseRecaptchaVerifierModal
+            ref = {recaptchaVerifier}
+            firebaseConfig={firebaseConfig}
+
+          />
+          <Text style = {styles.otpText}>
+            Login using OTP
+
+          </Text>
+          <TextInput
+            placeholder='Phone Number with country code'
+            onChangeText={setPhoneNumber}
+            keyboardType='phone-pad'
+            autoCompleteType='tel'
+            style={styles.textInput}
+          />
+
+          <TouchableOpacity style ={styles.sendVerification} onPress={sendVerification}>
+            <Text style={styles.buttonText}>
+              Send Verification
+              </Text> 
+
+          </TouchableOpacity>
+          <TextInput
+            placeholder='Confirm Code'
+            onChangeText={setcode}
+            keyboardType='number-pad'
+            autoCompleteType='tel'
+            style={styles.textInput}
+          />
+          <TouchableOpacity style ={styles.sendCode} onPress={confirCode}>
+            <Text style={styles.buttonText}>
+              Confirm Verification
+              </Text>
+              </TouchableOpacity>
+        </View>
+       )
+   }
+
+
+export default Otp;
+
+const styles = StyleSheet.create({
+    container:{
+        flex:1,
+        backgroundColor:'#000',
+        alignItems:'center',
+        justifyContent:'center',
+
+    },
+    textInput: {
+        paddingTop:40,
+        paddingBottom:20,
+        paddingHorizontal:20,
+        fontSize:24,
+        borderBottomColor:'#fff',
+        borderBottomWidth:20,
+        marginBottom:20,
+        textAlign:'center',
+        color:'#fff'
+
+    },
+    sendVerification:{
+        padding:20,
+        backgroundColor:'#3498db',
+        borderRadius:10,
+    },
+    sendCode:{
+        padding:20,
+        backgroundColor:'#9b59b6',
+        borderRadius:10,
+    },
+    buttonText:{
+      textAlign:'center',
+      color:'#fff',
+      fontWeight:'bold',
+    
+    },
+    otpText:{
+        fontSize:24,
+        fontWeight:'bold',
+        color:'#fff',
+        margin:20
     }
-  };
-
-  const submitOtp = async () => {
-    try {
-      const response = await confirmData.confirm(otpInput);
-      console.log(response);
-
-      alert('Your number is verified');
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  return (
-    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <TextInput
-        style={{borderWidth: 1, width: '80%', marginBottom: 5}}
-        placeholder="Enter Your Mobile Number"
-        onChangeText={value => setMobileNo(value)}
-      />
-      <Button title="Send Otp" onPress={() => sendOtp()} />
-      <TextInput
-        style={{borderWidth: 1, width: '80%', marginBottom: 5, marginTop: 30}}
-        placeholder="Enter Your OTP"
-        onChangeText={value => setOtpInput(value)}
-      />
-      <Button title="Submit" onPress={() => submitOtp()} />
-    </View>
-  );
-}
+});
