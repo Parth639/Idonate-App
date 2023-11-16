@@ -1,16 +1,17 @@
-import {View, Text, TextInput,TouchableOpacity,StyleSheet,Alert} from 'react-native';
+import {View, Text, TextInput,TouchableOpacity,StyleSheet,Alert,Image} from 'react-native';
 import React, {useRef,useState} from 'react';
 import {FirebaseRecaptchaVerifierModal} from 'expo-firebase-recaptcha';
 import { firebaseConfig } from './fireBaseConfig';
 import firebase from 'firebase/compat/app';
 
-const Otp = () =>{
+const Otp = ({navigation}) =>{
    const [phoneNumber,setPhoneNumber] = useState('');
    const [code,setcode] = useState('');
    const [verificationId,setVerificationID] = useState(null);
    const recaptchaVerifier = useRef(null);
 
    const sendVerification = () => {
+    
      const phoneProvider = new firebase.auth.PhoneAuthProvider();
      phoneProvider
           .verifyPhoneNumber(phoneNumber,recaptchaVerifier.current)
@@ -27,14 +28,14 @@ const Otp = () =>{
        firebase.auth().signInWithCredential(credential)
        .then(() => {
           setcode('');
+        navigation.navigate('Registration')
        })
        .catch((error) =>{
           // show an alert in case of error
           alert(error)
        })
-       Alert.alert(
-        'Login succesful.Welcome to App',
-       ); 
+       
+       
 
        }
        
@@ -45,12 +46,19 @@ const Otp = () =>{
             firebaseConfig={firebaseConfig}
 
           />
+          <View style={styles.ImageRow}>
+          <Image
+             source={require("./assets/images/onBoardinglogo.jpeg")}
+            resizeMode="contain"
+            style={styles.image}
+          ></Image>
+          </View>
           <Text style = {styles.otpText}>
             Login using OTP
 
           </Text>
           <TextInput
-            placeholder='Phone Number with country code'
+            placeholder=' Enter Phone Number with country code'
             onChangeText={setPhoneNumber}
             keyboardType='phone-pad'
             autoCompleteType='tel'
@@ -85,32 +93,36 @@ export default Otp;
 const styles = StyleSheet.create({
     container:{
         flex:1,
-        backgroundColor:'#000',
+        backgroundColor:"rgba(255,255,255,1)",
         alignItems:'center',
         justifyContent:'center',
+        borderRadius:32,
 
     },
     textInput: {
         paddingTop:40,
         paddingBottom:20,
-        paddingHorizontal:20,
-        fontSize:24,
+        paddingHorizontal:10,
+        fontSize:20,
         borderBottomColor:'#fff',
         borderBottomWidth:20,
         marginBottom:20,
         textAlign:'center',
-        color:'#fff'
+        color:'#000'
 
     },
     sendVerification:{
         padding:20,
-        backgroundColor:'#3498db',
+        backgroundColor:'red',
+        paddingHorizontal:50,
         borderRadius:10,
     },
     sendCode:{
         padding:20,
-        backgroundColor:'#9b59b6',
+        paddingHorizontal:40,
+        backgroundColor:'red',
         borderRadius:10,
+        marginBottom:20,
     },
     buttonText:{
       textAlign:'center',
@@ -121,7 +133,28 @@ const styles = StyleSheet.create({
     otpText:{
         fontSize:24,
         fontWeight:'bold',
-        color:'#fff',
-        margin:20
-    }
+        color:'#000',
+        marginTop:300,
+        backgroundColor:"white",
+        width:365,
+        height:105,
+        textAlign:"center",
+        textAlignVertical:"center"
+    },
+    ImageRow:{
+      height: 339,
+      flexDirection: "row",
+      flex: 1,
+      marginRight: -450,
+      marginLeft: -450,
+      marginTop: 5    
+    },
+    image: {
+      width: 450,
+      height: 280,
+      marginTop: 30,
+      justifyContent:'center',
+      resizeMode:'contain'
+  
+    },
 });

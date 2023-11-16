@@ -11,7 +11,7 @@ const RegistrationScreen = ({ navigation }) => {
     // Handle user registration logic here
     // You can send the registration data to your backend or store it locally
     // For simplicity, we're just navigating back to the onboarding screen
-    navigation.navigate('Onboarding');
+    navigation.navigate('DonorMenu');
   };
 
   return (
